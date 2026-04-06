@@ -3,138 +3,119 @@ from google import genai
 import base64
 import re
 
-# ─────────────────────────────────────────────
-# 1. PAGE CONFIG  (must be first Streamlit call)
-# ─────────────────────────────────────────────
+# 1. PAGE CONFIG
 st.set_page_config(
     page_title="Nektar Support Assistant",
     page_icon="🤖",
     layout="centered",
 )
 
-# ─────────────────────────────────────────────
 # 2. LOGO HELPER
-#    The logo file is an SVG that wraps a base64 PNG.
-#    We extract the PNG and render it directly so it
-#    looks crisp on every background.
-# ─────────────────────────────────────────────
 @st.cache_data
 def get_logo_base64(path: str = "nektar_logo.png") -> str | None:
-    """
-    Return a data-URI for the logo.
-    Handles three cases:
-      - Real PNG / JPEG  → encode directly
-      - SVG with embedded base64 image → extract inner PNG
-      - Plain SVG        → encode as image/svg+xml
-    """
     try:
         raw = open(path, "rb").read()
     except FileNotFoundError:
         return None
 
-    # Try to detect SVG (starts with < after optional BOM/whitespace)
     text = raw.decode("utf-8", errors="ignore").lstrip()
     if text.lstrip().startswith("<svg") or text.lstrip().startswith("<?xml"):
-        # Look for an embedded base64 PNG inside the SVG
         match = re.search(
             r'xlink:href=["\']data:(image/[^;]+);base64,([^"\']+)["\']', text
         )
         if match:
             mime, b64 = match.group(1), match.group(2)
             return f"data:{mime};base64,{b64.strip()}"
-        # Fall back: serve the whole SVG as a data-URI
         encoded = base64.b64encode(raw).decode()
         return f"data:image/svg+xml;base64,{encoded}"
 
-    # Binary image (PNG, JPEG …)
     encoded = base64.b64encode(raw).decode()
-    # Sniff magic bytes
     mime = "image/png" if raw[:4] == b"\x89PNG" else "image/jpeg"
     return f"data:{mime};base64,{encoded}"
 
-
 LOGO_URI = get_logo_base64("nektar_logo.png")
-# ─────────────────────────────────────────────
-# 3. CUSTOM CSS — DARK TYPING & YELLOW SPINNER
-# ─────────────────────────────────────────────
-BG_PAGE     = "#EAF4ED"   # Full pale green
-TEXT_DARK   = "#1A2F2F"   # Deep charcoal (Essential for visibility)
-ACCENT      = "#74A892"   # Sage green border
-YELLOW_LOAD = "#FFD700"   # Bright Yellow for loading
+
+# 3. CUSTOM CSS — NAVY DARK THEME
+BG_PAGE     = "#0A0F1E"   # Deep navy-black
+BG_SURFACE  = "#111827"   
+USER_BUBBLE = "#00A8E8"   # Bright blue
+BOT_BUBBLE  = "#1E293B"   # Slate
+TEXT_MAIN   = "#E2E8F0"   # Off-white
+TEXT_MUTED  = "#64748B"   
+ACCENT      = "#00A8E8"   
+INPUT_BG    = "#1E293B"   
 
 st.markdown(
     f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
 
-    /* 1. Global Page Background */
-    html, body, .stApp, [data-testid="stAppViewContainer"] {{
-        background-color: {BG_PAGE} !important;
+    html, body, [class*="css"], .stApp, .main, .block-container {{
         font-family: 'DM Sans', sans-serif !important;
-    }}
-
-    /* 2. FORCE TYPING TO BE DARK & VISIBLE */
-    /* This overrides browser 'lite' color defaults */
-    [data-testid="stChatInput"] textarea {{
-        color: {TEXT_DARK} !important;
-        -webkit-text-fill-color: {TEXT_DARK} !important;
-        caret-color: {TEXT_DARK} !important;
-    }}
-
-    /* 3. YELLOW LOADING ICON */
-    /* This targets the Streamlit spinner/st.spinner icon */
-    [data-testid="stChatMessage"] .stSpinner i,
-    .stSpinner {{
-        border-top-color: {YELLOW_LOAD} !important;
-    }}
-    
-    div[data-testid="stLottie"] svg path {{
-        fill: {YELLOW_LOAD} !important;
-    }}
-
-    /* 4. REMOVE BLACK BAR & STYLE INPUT BOX */
-    [data-testid="stChatInputContainer"] {{
         background-color: {BG_PAGE} !important;
-        border: none !important;
+        color: {TEXT_MAIN} !important;
     }}
 
-    [data-testid="stChatInput"] {{
-        background-color: #FFFFFF !important;
-        border: 2px solid {ACCENT} !important;
-        border-radius: 12px !important;
-    }}
-
-    /* 5. BOLD HEADER STYLE */
-    .nk-title {{
-        font-size: 1.5rem;
-        font-weight: 800 !important;
-        color: {TEXT_DARK} !important;
-    }}
-
-    /* General text dark color */
-    p, span, .stMarkdown {{
-        color: {TEXT_DARK} !important;
+    section[data-testid="stSidebar"], [data-testid="stAppViewContainer"], [data-testid="stMain"] {{
+        background-color: {BG_PAGE} !important;
     }}
 
     #MainMenu, footer, header {{ visibility: hidden; }}
+
+    /* ── Centered Header ── */
+    .nk-header {{
+        text-align: center;
+        padding: 20px 0;
+        border-bottom: 2px solid {ACCENT};
+        margin-bottom: 30px;
+    }}
+    .nk-header img {{
+        height: 50px;
+        margin-bottom: 10px;
+    }}
+    .nk-title {{
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: {TEXT_MAIN} !important;
+    }}
+    .nk-subtitle {{
+        font-size: 0.9rem;
+        color: {TEXT_MUTED} !important;
+    }}
+
+    /* ── Chat Bubbles ── */
+    [data-testid="stChatMessage"][data-role="user"] .stMarkdown p {{
+        background: {USER_BUBBLE} !important;
+        color: #FFFFFF !important;
+        border-radius: 18px 18px 4px 18px;
+        padding: 10px 16px;
+    }}
+    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown p {{
+        background: {BOT_BUBBLE} !important;
+        color: {TEXT_MAIN} !important;
+        border-radius: 18px 18px 18px 4px;
+        padding: 10px 16px;
+        border: 1px solid #2D3748;
+    }}
+
+    /* ── Input ── */
+    [data-testid="stChatInput"] {{
+        background-color: {INPUT_BG} !important;
+        border-radius: 24px !important;
+    }}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
-# ─────────────────────────────────────────────
-# 4. HEADER (Bold Support Assistant)
-# ─────────────────────────────────────────────
-logo_html = f'<img src="{LOGO_URI}" width="180">' if LOGO_URI else ""
-
+# 4. HEADER (Centered)
+logo_html = f'<img src="{LOGO_URI}" alt="Logo">' if LOGO_URI else '🤖'
 st.markdown(
     f"""
     <div class="nk-header">
         {logo_html}
-        <div>
-            <div class="nk-title">Support Assistant</div>
-            <div class="nk-subtitle">GTM Telemetry for the Agentic Enterprise</div>
-        </div>
+        <div class="nk-title">Support Assistant</div>
+        <div class="nk-subtitle">GTM Telemetry for the Agentic Enterprise</div>
     </div>
     """,
     unsafe_allow_html=True,
