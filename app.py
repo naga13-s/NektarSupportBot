@@ -1,433 +1,139 @@
 import streamlit as st
-
 from google import genai
-
 import base64
-
 import re
 
-
-
 # ─────────────────────────────────────────────
-
-# 1. PAGE CONFIG  (must be first Streamlit call)
-
+# 1. PAGE CONFIG
 # ─────────────────────────────────────────────
-
 st.set_page_config(
-
     page_title="Nektar Support Assistant",
-
     page_icon="🤖",
-
     layout="centered",
-
 )
 
-
-
 # ─────────────────────────────────────────────
-
 # 2. LOGO HELPER
-
-#    The logo file is an SVG that wraps a base64 PNG.
-
-#    We extract the PNG and render it directly so it
-
-#    looks crisp on every background.
-
 # ─────────────────────────────────────────────
-
 @st.cache_data
-
 def get_logo_base64(path: str = "nektar_logo.png") -> str | None:
-
-    """
-
-    Return a data-URI for the logo.
-
-    Handles three cases:
-
-      - Real PNG / JPEG  → encode directly
-
-      - SVG with embedded base64 image → extract inner PNG
-
-      - Plain SVG        → encode as image/svg+xml
-
-    """
-
     try:
-
         raw = open(path, "rb").read()
-
     except FileNotFoundError:
-
         return None
 
-
-
-    # Try to detect SVG (starts with < after optional BOM/whitespace)
-
     text = raw.decode("utf-8", errors="ignore").lstrip()
-
     if text.lstrip().startswith("<svg") or text.lstrip().startswith("<?xml"):
-
-        # Look for an embedded base64 PNG inside the SVG
-
         match = re.search(
-
             r'xlink:href=["\']data:(image/[^;]+);base64,([^"\']+)["\']', text
-
         )
-
         if match:
-
             mime, b64 = match.group(1), match.group(2)
-
             return f"data:{mime};base64,{b64.strip()}"
-
-        # Fall back: serve the whole SVG as a data-URI
-
         encoded = base64.b64encode(raw).decode()
-
         return f"data:image/svg+xml;base64,{encoded}"
 
-
-
-    # Binary image (PNG, JPEG …)
-
     encoded = base64.b64encode(raw).decode()
-
-    # Sniff magic bytes
-
     mime = "image/png" if raw[:4] == b"\x89PNG" else "image/jpeg"
-
     return f"data:{mime};base64,{encoded}"
-
-
-
-
 
 LOGO_URI = get_logo_base64("nektar_logo.png")
 
-
-
 # ─────────────────────────────────────────────
-
-# 3. CUSTOM CSS  —  DARK THEME
-
+# 3. CUSTOM CSS — NAVY BLUE THEME (CENTERED)
 # ─────────────────────────────────────────────
-
-BG_PAGE     = "#0A0F1E"   # deep navy-black page background
-
-BG_SURFACE  = "#111827"   # slightly lighter surface (sidebar / cards)
-
-USER_BUBBLE = "#00A8E8"   # bright accent blue for user messages
-
-BOT_BUBBLE  = "#1E293B"   # dark slate for assistant bubble
-
-TEXT_MAIN   = "#E2E8F0"   # off-white — primary text
-
-TEXT_MUTED  = "#64748B"   # muted grey for subtitles
-
-ACCENT      = "#00A8E8"   # vibrant blue accent
-
-INPUT_BG    = "#1E293B"   # dark input field background
-
-
+BG_PAGE     = "#0A0F1E"   # Deep navy-black
+USER_BUBBLE = "#00A8E8"   # Bright blue
+BOT_BUBBLE  = "#1E293B"   # Slate
+TEXT_MAIN   = "#E2E8F0"   # Off-white
+TEXT_MUTED  = "#64748B"   
+ACCENT      = "#00A8E8"   
+INPUT_BG    = "#1E293B"   
 
 st.markdown(
-
     f"""
-
     <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-    /* ── Google Font ── */
-
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
-
-
-
-    /* ── Global dark background ── */
-
-    html, body, [class*="css"], .stApp, .main, .block-container {{
-
+    /* Global Colors */
+    html, body, .stApp, [data-testid="stAppViewContainer"] {{
+        background-color: {BG_PAGE} !important;
         font-family: 'DM Sans', sans-serif !important;
-
-        background-color: {BG_PAGE} !important;
-
         color: {TEXT_MAIN} !important;
-
     }}
-
-
-
-    /* Catch any rogue white panels */
-
-    section[data-testid="stSidebar"],
-
-    [data-testid="stAppViewContainer"],
-
-    [data-testid="stAppViewBlockContainer"],
-
-    [data-testid="stVerticalBlock"],
-
-    [data-testid="stMain"] {{
-
-        background-color: {BG_PAGE} !important;
-
-    }}
-
-
-
-    /* ── Hide Streamlit chrome ── */
 
     #MainMenu, footer, header {{ visibility: hidden; }}
 
-
-
-    /* ── Header bar ── */
-
+    /* ── CENTERED HEADER STYLE ── */
     .nk-header {{
-
-        display: flex;
-
-        align-items: center;
-
-        gap: 14px;
-
-        padding: 18px 0 10px 0;
-
+        text-align: center;
+        padding: 20px 0;
         border-bottom: 2px solid {ACCENT};
-
-        margin-bottom: 12px;
-
+        margin-bottom: 30px;
     }}
-
     .nk-header img {{
-
-        height: 36px;
-
-        object-fit: contain;
-
-        filter: brightness(1.1);
-
+        height: 60px;
+        margin-bottom: 10px;
     }}
-
     .nk-title {{
-
-        font-size: 1.25rem;
-
-        font-weight: 600;
-
+        font-size: 2rem;
+        font-weight: 700;
         color: {TEXT_MAIN} !important;
-
-        letter-spacing: -0.02em;
-
+        margin: 0;
     }}
-
     .nk-subtitle {{
-
-        font-size: 0.78rem;
-
+        font-size: 0.95rem;
         color: {TEXT_MUTED} !important;
-
-        margin-top: 2px;
-
+        margin-top: 5px;
     }}
 
-
-
-    /* ── Chat message container ── */
-
-    [data-testid="stChatMessage"] {{
-
-        background: transparent !important;
-
-    }}
-
-
-
-    /* ── User bubble → accent blue, right side ── */
-
-    [data-testid="stChatMessage"][data-role="user"] {{
-
-        flex-direction: row-reverse;
-
-    }}
-
+    /* Chat Bubbles */
     [data-testid="stChatMessage"][data-role="user"] .stMarkdown p {{
-
         background: {USER_BUBBLE} !important;
-
         color: #FFFFFF !important;
-
         border-radius: 18px 18px 4px 18px;
-
         padding: 10px 16px;
-
-        display: inline-block;
-
-        max-width: 85%;
-
-        font-size: 0.93rem;
-
-        line-height: 1.55;
-
     }}
-
-
-
-    /* ── Assistant bubble → dark slate, left side ── */
-
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown p,
-
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown li,
-
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown h1,
-
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown h2,
-
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown h3,
-
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown span,
-
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown {{
-
-        color: {TEXT_MAIN} !important;
-
-    }}
-
     [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown p {{
-
         background: {BOT_BUBBLE} !important;
-
         color: {TEXT_MAIN} !important;
-
         border-radius: 18px 18px 18px 4px;
-
         padding: 10px 16px;
-
-        display: inline-block;
-
-        max-width: 88%;
-
-        font-size: 0.93rem;
-
-        line-height: 1.55;
-
         border: 1px solid #2D3748;
-
     }}
 
-
-
-    /* ── Chat input — dark styled ── */
-
+    /* Chat Input Bar */
+    [data-testid="stChatInputContainer"] {{
+        background-color: {BG_PAGE} !important;
+    }}
     [data-testid="stChatInput"] {{
-
         background-color: {INPUT_BG} !important;
-
+        border: 1px solid #2D3748 !important;
         border-radius: 24px !important;
-
-        border: 1.5px solid #2D3748 !important;
-
     }}
-
     [data-testid="stChatInput"] textarea {{
-
-        background-color: {INPUT_BG} !important;
-
         color: {TEXT_MAIN} !important;
-
-        border-radius: 24px !important;
-
-        border: none !important;
-
-        padding: 10px 18px !important;
-
-        font-family: 'DM Sans', sans-serif !important;
-
-        font-size: 0.93rem !important;
-
     }}
-
-    [data-testid="stChatInput"] textarea:focus {{
-
-        outline: none !important;
-
-        box-shadow: 0 0 0 3px rgba(0,168,232,0.2) !important;
-
-    }}
-
-    [data-testid="stChatInput"] textarea::placeholder {{
-
-        color: {TEXT_MUTED} !important;
-
-    }}
-
-
-
-    /* ── Scrollbar ── */
-
-    ::-webkit-scrollbar {{ width: 6px; }}
-
-    ::-webkit-scrollbar-track {{ background: {BG_PAGE}; }}
-
-    ::-webkit-scrollbar-thumb {{ background: #2D3748; border-radius: 8px; }}
-
     </style>
-
     """,
-
     unsafe_allow_html=True,
-
 )
 
-
-
 # ─────────────────────────────────────────────
-
-# 4. HEADER
-
+# 4. HEADER (Centered Layout)
 # ─────────────────────────────────────────────
-
-logo_html = (
-
-    f'<img src="{LOGO_URI}" alt="Nektar logo">'
-
-    if LOGO_URI
-
-    else '<span style="font-size:1.6rem">🤖</span>'
-
-)
-
-
+logo_html = f'<img src="{LOGO_URI}" alt="Logo">' if LOGO_URI else '🤖'
 
 st.markdown(
-
     f"""
-
     <div class="nk-header">
-
         {logo_html}
-
-        <div>
-
-            <div class="nk-title">Support Assistant</div>
-
-            <div class="nk-subtitle">GTM Telemetry for the Agentic Enterprise</div>
-
-        </div>
-
+        <div class="nk-title">Support Assistant</div>
+        <div class="nk-subtitle">GTM Telemetry for the Agentic Enterprise</div>
     </div>
-
     """,
-
     unsafe_allow_html=True,
-
 )
-
 
 
 # ─────────────────────────────────────────────
