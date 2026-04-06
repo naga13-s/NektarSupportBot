@@ -56,38 +56,57 @@ def get_logo_base64(path: str = "nektar_logo.png") -> str | None:
 LOGO_URI = get_logo_base64("nektar_logo.png")
 
 # ─────────────────────────────────────────────
-# 3. CUSTOM CSS — DARK WORDINGS & ORIGINAL STYLE
+# 3. CUSTOM CSS — CREATIVE INPUT & VISIBLE TEXT
 # ─────────────────────────────────────────────
 BG_PAGE     = "#EAF4ED"   # Full pale green
-TEXT_DARK   = "#1A2F2F"   # Deep charcoal for all words
-ACCENT      = "#74A892"   # Sage border color
+TEXT_DARK   = "#1A2F2F"   # Deep charcoal (Essential for visibility)
+ACCENT      = "#74A892"   # Sage green
 
 st.markdown(
     f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
 
-    /* 1. Global background and font */
+    /* 1. Global background and Font */
     html, body, [class*="css"], .stApp {{
         font-family: 'DM Sans', sans-serif !important;
         background-color: {BG_PAGE} !important;
     }}
 
-    /* 2. FORCE ALL TEXT TO DARK CHARCOAL */
-    p, div, span, h1, h2, h3, label, .stMarkdown {{
+    /* 2. FORCE TEXT VISIBILITY */
+    p, div, span, h1, h2, h3, label, .stMarkdown, textarea {{
         color: {TEXT_DARK} !important;
     }}
 
-    /* 3. FIX THE GREY BOX (Force chat bubbles to match background) */
-    [data-testid="stChatMessage"] {{
-        background-color: {BG_PAGE} !important;
+    /* 3. CREATIVE CHAT INPUT (Fixes the black bar) */
+    /* This targets the container at the bottom */
+    [data-testid="stChatInputContainer"] {{
+        background-color: transparent !important;
         border: none !important;
+        padding-bottom: 30px !important;
+    }}
+
+    /* This styles the actual text box */
+    [data-testid="stChatInput"] {{
+        background-color: #FFFFFF !important;
+        border: 2px solid {ACCENT} !important;
+        border-radius: 30px !important;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+    }}
+
+    /* This ensures what you TYPE is dark charcoal */
+    [data-testid="stChatInput"] textarea {{
+        color: {TEXT_DARK} !important;
+        background-color: #FFFFFF !important;
+        font-size: 1rem !important;
+    }}
+
+    /* 4. CHAT BUBBLE CLEANUP */
+    [data-testid="stChatMessage"] {{
+        background-color: transparent !important;
     }}
     
-    /* 4. Hide Streamlit elements */
-    #MainMenu, footer, header {{ visibility: hidden; }}
-
-    /* 5. ORIGINAL HEADER STYLE */
+    /* 5. Header bar */
     .nk-header {{
         display: flex;
         align-items: center;
@@ -96,22 +115,9 @@ st.markdown(
         border-bottom: 2px solid {ACCENT};
         margin-bottom: 20px;
     }}
-    .nk-title {{
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin: 0;
-        color: {TEXT_DARK} !important;
-    }}
-    .nk-subtitle {{
-        font-size: 0.85rem;
-        color: #4A5568 !important;
-        margin: 0;
-    }}
-
-    /* 6. INPUT FIELD DARK TEXT */
-    [data-testid="stChatInput"] textarea {{
-        color: {TEXT_DARK} !important;
-    }}
+    
+    /* Hide Streamlit elements */
+    #MainMenu, footer, header {{ visibility: hidden; }}
     </style>
     """,
     unsafe_allow_html=True,
