@@ -56,15 +56,15 @@ def get_logo_base64(path: str = "nektar_logo.png") -> str | None:
 LOGO_URI = get_logo_base64("nektar_logo.png")
 
 # ─────────────────────────────────────────────
-# 3. CUSTOM CSS  —  DARK THEME
+# 3. CUSTOM CSS  —  DARK THEME (MINT GREEN ACCENT)
 # ─────────────────────────────────────────────
 BG_PAGE     = "#0A0F1E"   # deep navy-black page background
-BG_SURFACE  = "#111827"   # slightly lighter surface (sidebar / cards)
-USER_BUBBLE = "#00A8E8"   # bright accent blue for user messages
+BG_SURFACE  = "#111827"   # slightly lighter surface
+USER_BUBBLE = "#A7D7C5"   # Pale/Lite Green for user messages
 BOT_BUBBLE  = "#1E293B"   # dark slate for assistant bubble
 TEXT_MAIN   = "#E2E8F0"   # off-white — primary text
 TEXT_MUTED  = "#64748B"   # muted grey for subtitles
-ACCENT      = "#00A8E8"   # vibrant blue accent
+ACCENT      = "#A7D7C5"   # Pale Green accent border
 INPUT_BG    = "#1E293B"   # dark input field background
 
 st.markdown(
@@ -123,19 +123,20 @@ st.markdown(
         background: transparent !important;
     }}
 
-    /* ── User bubble → accent blue, right side ── */
+    /* ── User bubble → PALE GREEN, right side ── */
     [data-testid="stChatMessage"][data-role="user"] {{
         flex-direction: row-reverse;
     }}
     [data-testid="stChatMessage"][data-role="user"] .stMarkdown p {{
         background: {USER_BUBBLE} !important;
-        color: #FFFFFF !important;
+        color: #111827 !important; /* Dark text for better contrast on light green */
         border-radius: 18px 18px 4px 18px;
         padding: 10px 16px;
         display: inline-block;
         max-width: 85%;
         font-size: 0.93rem;
         line-height: 1.55;
+        font-weight: 500;
     }}
 
     /* ── Assistant bubble → dark slate, left side ── */
@@ -177,7 +178,7 @@ st.markdown(
     }}
     [data-testid="stChatInput"] textarea:focus {{
         outline: none !important;
-        box-shadow: 0 0 0 3px rgba(0,168,232,0.2) !important;
+        box-shadow: 0 0 0 3px rgba(167, 215, 197, 0.2) !important;
     }}
     [data-testid="stChatInput"] textarea::placeholder {{
         color: {TEXT_MUTED} !important;
