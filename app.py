@@ -227,7 +227,7 @@ Your job is to help users get the most out of Nektar's Salesforce integration.
 """.strip()
 
     st.session_state.chat = st.session_state.client.chats.create(
-        model="gemma-4-27b-it",   # update model name as needed
+        model="gemma-4-26b-a4b-it",   # update model name as needed
         config={"system_instruction": system_prompt},
     )
 
