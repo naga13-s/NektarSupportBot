@@ -1,75 +1,103 @@
 import streamlit as st
 from google import genai
+from PIL import Image
 
-# --- PAGE CONFIG ---
-st.set_page_config(page_title="Nektar Support AI", page_icon="🤖")
-st.title("🤖 Nektar Support Assistant")
+# --- PAGE CONFIG (Clean & Nice UI) ---
+st.set_page_config(
+    page_title="Nektar Support Assistant", 
+    page_icon="🤖", 
+    layout="centered"
+)
 
-# --- 1. LOAD THE MARKDOWN KNOWLEDGE BASE ---
+# --- THEME CUSTOMIZATION: Nektar Colors ---
+# Yellow: #FFD200, Navy: #003049, White: #FFFFFF
+st.markdown("""
+    <style>
+    /* 1. Main Background */
+    .stApp {
+        background-color: #FFFFFF;
+    }
+
+    /* 2. Chat Bubbles: User */
+    [data-testid="stChatMessage"] div.stMarkdown {
+        background-color: #f1f3f5;
+        border-radius: 12px;
+        padding: 10px;
+    }
+
+    /* 3. Chat Bubbles: Assistant (Nektar Blue) */
+    [data-testid="stChatMessage"]:nth-child(even) div.stMarkdown {
+        background-color: #003049;
+        color: #FFFFFF !important;
+        border-radius: 12px;
+        padding: 10px;
+    }
+    
+    /* Ensure markdown text is white in Assistant bubble */
+    [data-testid="stChatMessage"]:nth-child(even) p {
+        color: #FFFFFF !important;
+    }
+
+    /* 4. Hide Default Streamlit Branding */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    .stChatFloatingInputContainer {padding-bottom: 20px;}
+
+    /* 5. Clean up Header Spacing */
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 0rem;
+    }
+    </style>
+    """, unsafe_allow_index=True)
+
+# --- 1. THE LOGO & HEADER ---
+# Centering the logo using columns
+col1, col2, col3 = st.columns([1, 2, 1])
+with col2:
+    # Ensure 'nektar_logo.png' is in the same folder on GitHub
+    try:
+        image = Image.open('nektar_logo.png')
+        st.image(image, use_column_width=True)
+    except:
+        st.write("Nektar Support") # Fallback if logo is missing
+st.title("🤖 Nektar Support AI")
+st.caption("Ask me about Nektar features, setup, or strategy.")
+
+# --- 2. SILENT DATA LOAD ---
 @st.cache_data
 def load_kb():
-    # Make sure this filename matches your uploaded file exactly!
+    # Silent load - no error logs shown to the user
     kb_filename = "Knowledgebase dc271e4f7851429f9973cdf41d1e203a.md"
     try:
         with open(kb_filename, "r", encoding="utf-8") as f:
             return f.read()
-    except FileNotFoundError:
-        st.error(f"Could not find {kb_filename}. Please check the filename in GitHub.")
-        return ""
+    except:
+        return "Knowledge base unavailable."
 
 kb_content = load_kb()
 
-# --- 2. CONNECT TO GEMINI ---
-# Ensure you add 'GEMINI_API_KEY' in Streamlit Cloud Settings > Secrets
-client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+# --- 3. SILENT CLIENT INIT ---
+if "client" not in st.session_state:
+    if "GEMINI_API_KEY" in st.secrets:
+        st.session_state.client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
+    else:
+        st.stop() # Stops the app quietly if key is missing
 
-# --- 3. INITIALIZE SESSION STATE ---
+# --- 4. CHAT HISTORY & SYSTEM PROMPT ---
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 if "chat" not in st.session_state:
     system_prompt = f"""
-# ROLE
-You are the Nektar Support Assistant. Persona: Polite, professional, and concise.
-
-# CONTEXT (Knowledge Base)
-{kb_content}
-
-# OPERATING RULES
-1. **GREETINGS & PERMISSIONS**:
-   - If someone says "hi" or asks "can I ask a question?", be warm and inviting. 
-   - [STRICT] Do NOT use technical follow-up questions for simple greetings.
-
-2. **TECHNICAL HELP**:
-   - Use the Knowledge Base to provide clear, helpful answers.
-   - [VARY THE CLOSING]: After a technical answer, end with something like:
-     * "Does that clear things up for you?"
-     * "Is there anything else I can double-check for you?"
-
-3. **HANDOFF (NO LIVE AGENTS)**:
-   - If they ask for a person, explain that you are an AI assistant.
-   - Redirect them to email support@nektar.ai or contact their CSM for complex issues.
-
-# NEGATIVE CONSTRAINTS
-- Never provide the support email in the first greeting.
-- Keep responses under 4 sentences.
-"""
-    st.session_state.chat = client.chats.create(
+    # ROLE: Nektar Support Assistant. Persona: Polite, professional, and concise.
+    # CONTEXT: {kb_content}
+    # RULES: Follow the conversational guidelines we discussed...
+    """
+    st.session_state.chat = st.session_state.client.chats.create(
         model="gemma-4-26b-a4b-it", 
         config={"system_instruction": system_prompt}
     )
 
-# --- 4. THE CHAT INTERFACE ---
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.markdown(message["content"])
-
-if prompt := st.chat_input("How can I help with Nektar today?"):
-    st.session_state.messages.append({"role": "user", "content": prompt})
-    with st.chat_message("user"):
-        st.markdown(prompt)
-
-    with st.chat_message("assistant"):
-        response = st.session_state.chat.send_message(prompt)
-        st.markdown(response.text)
-        st.session_state.messages.append({"role": "assistant", "content": response.text})
+# --- 5. THE CHAT INTERFACE (No Logs) ---
+for message in st
