@@ -56,73 +56,61 @@ def get_logo_base64(path: str = "nektar_logo.png") -> str | None:
 LOGO_URI = get_logo_base64("nektar_logo.png")
 
 # ─────────────────────────────────────────────
-# 3. CUSTOM CSS  —  NEAT & DARK TEXT VERSION
+# 3. CUSTOM CSS — DARK WORDINGS & ORIGINAL STYLE
 # ─────────────────────────────────────────────
-BG_PAGE     = "#EAF4ED"   # Full pale green background
-BG_SURFACE  = "#F7FBF9"   
-USER_BUBBLE = "#C3E6D7"   # Sage green for user
-BOT_BUBBLE  = "#FFFFFF"   # Clean white for assistant
-
-# CRITICAL: Dark color for visible wordings
-TEXT_MAIN   = "#1A2F2F"   # Deep charcoal-green for visibility
-TEXT_MUTED  = "#2D3748"   # Darker grey for subtitles
-ACCENT      = "#74A892"   
-INPUT_BG    = "#FFFFFF"   
+BG_PAGE     = "#EAF4ED"   # Full pale green
+TEXT_DARK   = "#1A2F2F"   # Deep charcoal for all words
+ACCENT      = "#74A892"   # Sage border color
 
 st.markdown(
     f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
 
-    /* ── Global Background and Text ── */
-    html, body, [class*="css"], .stApp, .main, .block-container {{
+    /* 1. Global background and font */
+    html, body, [class*="css"], .stApp {{
         font-family: 'DM Sans', sans-serif !important;
         background-color: {BG_PAGE} !important;
-        color: {TEXT_MAIN} !important; /* Forces all text to dark */
     }}
 
-    [data-testid="stAppViewContainer"], [data-testid="stHeader"], [data-testid="stMain"] {{
+    /* 2. FORCE ALL TEXT TO DARK CHARCOAL */
+    p, div, span, h1, h2, h3, label, .stMarkdown {{
+        color: {TEXT_DARK} !important;
+    }}
+
+    /* 3. FIX THE GREY BOX (Force chat bubbles to match background) */
+    [data-testid="stChatMessage"] {{
         background-color: {BG_PAGE} !important;
+        border: none !important;
     }}
-
+    
+    /* 4. Hide Streamlit elements */
     #MainMenu, footer, header {{ visibility: hidden; }}
 
-    /* ── Header Visibility ── */
+    /* 5. ORIGINAL HEADER STYLE */
+    .nk-header {{
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 10px 0;
+        border-bottom: 2px solid {ACCENT};
+        margin-bottom: 20px;
+    }}
     .nk-title {{
-        color: {TEXT_MAIN} !important;
+        font-size: 1.5rem;
         font-weight: 700;
+        margin: 0;
+        color: {TEXT_DARK} !important;
     }}
     .nk-subtitle {{
-        color: {TEXT_MUTED} !important;
-        font-weight: 500;
+        font-size: 0.85rem;
+        color: #4A5568 !important;
+        margin: 0;
     }}
 
-    /* ── Chat Bubbles: DARK WORDINGS ── */
-    [data-testid="stChatMessage"] p {{
-        color: {TEXT_MAIN} !important; /* Ensures chat text is visible */
-        font-weight: 450;
-    }}
-
-    /* User Bubble (Right) */
-    [data-testid="stChatMessage"][data-role="user"] .stMarkdown p {{
-        background: {USER_BUBBLE} !important;
-        border: 1px solid {ACCENT};
-        border-radius: 18px 18px 4px 18px;
-        padding: 12px 18px;
-    }}
-
-    /* Assistant Bubble (Left) */
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown p {{
-        background: {BOT_BUBBLE} !important;
-        border: 1px solid #D1D5DB;
-        border-radius: 18px 18px 18px 4px;
-        padding: 12px 18px;
-    }}
-
-    /* ── Input Field ── */
+    /* 6. INPUT FIELD DARK TEXT */
     [data-testid="stChatInput"] textarea {{
-        color: {TEXT_MAIN} !important;
-        background-color: {INPUT_BG} !important;
+        color: {TEXT_DARK} !important;
     }}
     </style>
     """,
@@ -130,13 +118,9 @@ st.markdown(
 )
 
 # ─────────────────────────────────────────────
-# 4. HEADER
+# 4. ORIGINAL HEADER (Kept as previous style)
 # ─────────────────────────────────────────────
-logo_html = (
-    f'<img src="{LOGO_URI}" alt="Nektar logo">'
-    if LOGO_URI
-    else '<span style="font-size:1.6rem">🤖</span>'
-)
+logo_html = f'<img src="{LOGO_URI}" width="180">' if LOGO_URI else ""
 
 st.markdown(
     f"""
