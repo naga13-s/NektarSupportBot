@@ -204,7 +204,7 @@ def load_kb() -> str:
 @st.cache_data
 def load_faq() -> str:
     try:
-        with open("faq.md", "r", encoding="utf-8") as f:
+        with open("FAQs.md", "r", encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
         return ""
@@ -228,7 +228,7 @@ if "chat" not in st.session_state:
     system_prompt = f"""
 # ROLE
 You are the Nektar Support Assistant. Think of yourself as a knowledgeable,
-friendly colleague helping a teammate with Nektar.
+friendly colleague helping the customer / user with Nektar.
 
 # CONTACT INFORMATION — ALWAYS USE THESE, NEVER SAY YOU DON'T KNOW
 - Support Email: support@nektar.ai
