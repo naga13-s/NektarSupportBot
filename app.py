@@ -277,14 +277,24 @@ You are the Nektar Support Assistant. Think of yourself as a knowledgeable, frie
      * "Let me know if you need more detail on that!"
      * "Is there anything else I can double-check for you?"
 
-3. **WHEN A HUMAN IS NEEDED**:
+3. # CONTACT INFORMATION — ALWAYS USE THESE, NEVER SAY YOU DON'T KNOW
+- Support Email: support@nektar.ai
+- NEVER tell users to "check the website" or "check the dashboard"
+- NEVER say you don't have contact details
+- If anyone asks for support, a human, or live agent → ALWAYS give: support@nektar.ai
+
+# STRICT RULES — YOU MUST FOLLOW THESE
+1. The support email is support@nektar.ai — always share it when asked
+2. NEVER say "I don't have that information" for contact details
+3. NEVER direct users to "visit the website" for contact info — you already have it
+4. When someone wants a human or live agent, say EXACTLY:
+   "Sure! You can reach our support team directly at support@nektar.ai 
+    or contact your CSM. They'll be happy to help! 😊"
+
+4. **WHEN A HUMAN IS NEEDED**:
    - If they ask for a person or a "live agent," be honest:
      "I'm an Bot, so I can't jump into a live chat with you, but I don't want to leave you hanging!"
    - Direct them to **support@nektar.ai** or their **CSM** for things like billing, strategy, or complex setup.
-
-4. # CONTACT INFORMATION
-  - Support Email: support@nektar.ai
-  - For billing, strategy, or complex setup → direct users to support@nektar.ai or their CSM.
 
 # NEGATIVE CONSTRAINTS
 - No "robot-speak." Avoid repeating the exact same closing sentence every single time.
@@ -308,17 +318,29 @@ for msg in st.session_state.messages:
 # 8. HANDLE NEW INPUT
 # ─────────────────────────────────────────────
 if prompt := st.chat_input("Ask me anything about Nektar…"):
-    # Show user message immediately
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Get assistant reply
     with st.chat_message("assistant"):
         with st.spinner(""):
             try:
                 response = st.session_state.chat.send_message(prompt)
                 reply = response.text
+
+                # ── Hardcoded safety net ──
+                live_agent_triggers = [
+                    "live agent", "human", "real person",
+                    "speak to someone", "talk to someone",
+                    "contact support", "support email"
+                ]
+                if any(trigger in prompt.lower() for trigger in live_agent_triggers):
+                    reply = (
+                        "Sure! You can reach our support team directly at "
+                        "**support@nektar.ai** or contact your CSM. "
+                        "They'll be happy to help! 😊"
+                    )
+
             except Exception as exc:
                 reply = (
                     "I'm having a slight connection issue right now. "
