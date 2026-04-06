@@ -55,11 +55,12 @@ def get_logo_base64(path: str = "nektar_logo.png") -> str | None:
 
 LOGO_URI = get_logo_base64("nektar_logo.png")
 # ─────────────────────────────────────────────
-# 3. CUSTOM CSS — HIGH CONTRAST & BOLD HEADER
+# 3. CUSTOM CSS — DARK TYPING & YELLOW SPINNER
 # ─────────────────────────────────────────────
 BG_PAGE     = "#EAF4ED"   # Full pale green
 TEXT_DARK   = "#1A2F2F"   # Deep charcoal (Essential for visibility)
 ACCENT      = "#74A892"   # Sage green border
+YELLOW_LOAD = "#FFD700"   # Bright Yellow for loading
 
 st.markdown(
     f"""
@@ -73,20 +74,25 @@ st.markdown(
     }}
 
     /* 2. FORCE TYPING TO BE DARK & VISIBLE */
-    /* This targets the actual text area where you type */
+    /* This overrides browser 'lite' color defaults */
     [data-testid="stChatInput"] textarea {{
         color: {TEXT_DARK} !important;
         -webkit-text-fill-color: {TEXT_DARK} !important;
-        caret-color: {TEXT_DARK} !important; /* Makes the blinking cursor dark */
+        caret-color: {TEXT_DARK} !important;
     }}
 
-    /* This targets the "What's on your mind?" placeholder */
-    [data-testid="stChatInput"] textarea::placeholder {{
-        color: #5A716E !important;
-        -webkit-text-fill-color: #5A716E !important;
+    /* 3. YELLOW LOADING ICON */
+    /* This targets the Streamlit spinner/st.spinner icon */
+    [data-testid="stChatMessage"] .stSpinner i,
+    .stSpinner {{
+        border-top-color: {YELLOW_LOAD} !important;
+    }}
+    
+    div[data-testid="stLottie"] svg path {{
+        fill: {YELLOW_LOAD} !important;
     }}
 
-    /* 3. REMOVE BLACK BAR & STYLE INPUT BOX */
+    /* 4. REMOVE BLACK BAR & STYLE INPUT BOX */
     [data-testid="stChatInputContainer"] {{
         background-color: {BG_PAGE} !important;
         border: none !important;
@@ -98,23 +104,14 @@ st.markdown(
         border-radius: 12px !important;
     }}
 
-    /* 4. BOLD HEADER STYLE */
-    .nk-header {{
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        padding: 10px 0;
-        border-bottom: 2px solid {ACCENT};
-        margin-bottom: 20px;
-    }}
+    /* 5. BOLD HEADER STYLE */
     .nk-title {{
         font-size: 1.5rem;
-        font-weight: 800 !important; /* Bold "Support Assistant" */
+        font-weight: 800 !important;
         color: {TEXT_DARK} !important;
-        margin: 0;
     }}
 
-    /* 5. GENERAL TEXT VISIBILITY */
+    /* General text dark color */
     p, span, .stMarkdown {{
         color: {TEXT_DARK} !important;
     }}
