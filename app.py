@@ -54,59 +54,54 @@ def get_logo_base64(path: str = "nektar_logo.png") -> str | None:
 
 
 LOGO_URI = get_logo_base64("nektar_logo.png")
-
 # ─────────────────────────────────────────────
-# 3. CUSTOM CSS — THE FINAL CLEAN GREEN FIX
+# 3. CUSTOM CSS — HIGH VISIBILITY & BOLD HEADER
 # ─────────────────────────────────────────────
 BG_PAGE     = "#EAF4ED"   # Full pale green
-TEXT_DARK   = "#1A2F2F"   # Deep charcoal for visibility
-ACCENT      = "#74A892"   # Sage green border
+TEXT_DARK   = "#1A2F2F"   # Deep charcoal (Essential for visibility)
+ACCENT      = "#74A892"   # Sage green
 
 st.markdown(
     f"""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-    /* 1. FORCE THE WHOLE PAGE BACKGROUND */
+    /* 1. Global Background */
     html, body, .stApp, [data-testid="stAppViewContainer"] {{
         background-color: {BG_PAGE} !important;
         font-family: 'DM Sans', sans-serif !important;
     }}
 
-    /* 2. REMOVE THE BLACK BOTTOM BAR */
-    /* This targets the exact container causing the black strip */
-    footer {{visibility: hidden;}}
-    header {{visibility: hidden;}}
-    
+    /* 2. FORCE ALL TEXT TO DARK CHARCOAL */
+    p, div, span, h1, h2, h3, label, .stMarkdown, textarea {{
+        color: {TEXT_DARK} !important;
+        -webkit-text-fill-color: {TEXT_DARK} !important;
+    }}
+
+    /* 3. CHAT INPUT (The "What's on your mind" area) */
     [data-testid="stChatInputContainer"] {{
         background-color: {BG_PAGE} !important;
-        background: {BG_PAGE} !important;
         border: none !important;
     }}
 
-    /* 3. MAKE TYPING VISIBLE (White box with Dark Text) */
     [data-testid="stChatInput"] {{
         background-color: #FFFFFF !important;
         border: 2px solid {ACCENT} !important;
         border-radius: 15px !important;
     }}
 
-    /* This is what makes your typed words dark and visible */
+    /* Fix Placeholder & Typing Visibility */
     [data-testid="stChatInput"] textarea {{
         color: {TEXT_DARK} !important;
         -webkit-text-fill-color: {TEXT_DARK} !important;
     }}
-
-    /* 4. CHAT BUBBLE & GENERAL TEXT DARKNESS */
-    p, span, div, .stMarkdown {{
-        color: {TEXT_DARK} !important;
-    }}
     
-    [data-testid="stChatMessage"] {{
-        background-color: transparent !important;
+    [data-testid="stChatInput"] textarea::placeholder {{
+        color: #5A716E !important; /* Darker placeholder color */
+        -webkit-text-fill-color: #5A716E !important;
     }}
 
-    /* 5. ORIGINAL HEADER STYLE */
+    /* 4. HEADER STYLING (Bold Title) */
     .nk-header {{
         display: flex;
         align-items: center;
@@ -115,13 +110,28 @@ st.markdown(
         border-bottom: 2px solid {ACCENT};
         margin-bottom: 20px;
     }}
+    .nk-title {{
+        font-size: 1.5rem;
+        font-weight: 800 !important; /* EXTRA BOLD */
+        color: {TEXT_DARK} !important;
+        margin: 0;
+    }}
+    .nk-subtitle {{
+        font-size: 0.85rem;
+        color: {TEXT_DARK} !important;
+        opacity: 0.8;
+        margin: 0;
+    }}
+
+    /* Hide Streamlit elements */
+    #MainMenu, footer, header {{ visibility: hidden; }}
     </style>
     """,
     unsafe_allow_html=True,
 )
 
 # ─────────────────────────────────────────────
-# 4. ORIGINAL HEADER (Kept as previous style)
+# 4. HEADER (Bold Support Assistant)
 # ─────────────────────────────────────────────
 logo_html = f'<img src="{LOGO_URI}" width="180">' if LOGO_URI else ""
 
