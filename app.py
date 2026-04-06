@@ -228,6 +228,17 @@ def load_kb() -> str:
 
 kb_content = load_kb()
 
+
+@st.cache_data
+def load_faq() -> str:
+    try:
+        with open("faq.md", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return ""
+
+faq_content = load_faq()
+
 # ─────────────────────────────────────────────
 # 6. GEMINI CLIENT & SESSION INIT
 # ─────────────────────────────────────────────
@@ -244,6 +255,10 @@ if "chat" not in st.session_state:
     system_prompt = f"""
 # ROLE
 You are the Nektar Support Assistant. Think of yourself as a knowledgeable, friendly colleague helping a teammate with Nektar.
+
+# FAQ (answer these instantly without searching the knowledge base)
+   
+   {faq_content}
 
 # CONTEXT
 {kb_content}
