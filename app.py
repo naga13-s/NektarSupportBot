@@ -56,57 +56,57 @@ def get_logo_base64(path: str = "nektar_logo.png") -> str | None:
 LOGO_URI = get_logo_base64("nektar_logo.png")
 
 # ─────────────────────────────────────────────
-# 3. CUSTOM CSS — CREATIVE INPUT & VISIBLE TEXT
+# 3. CUSTOM CSS — THE FINAL CLEAN GREEN FIX
 # ─────────────────────────────────────────────
 BG_PAGE     = "#EAF4ED"   # Full pale green
-TEXT_DARK   = "#1A2F2F"   # Deep charcoal (Essential for visibility)
-ACCENT      = "#74A892"   # Sage green
+TEXT_DARK   = "#1A2F2F"   # Deep charcoal for visibility
+ACCENT      = "#74A892"   # Sage green border
 
 st.markdown(
     f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
 
-    /* 1. Global background and Font */
-    html, body, [class*="css"], .stApp {{
-        font-family: 'DM Sans', sans-serif !important;
+    /* 1. FORCE THE WHOLE PAGE BACKGROUND */
+    html, body, .stApp, [data-testid="stAppViewContainer"] {{
         background-color: {BG_PAGE} !important;
+        font-family: 'DM Sans', sans-serif !important;
     }}
 
-    /* 2. FORCE TEXT VISIBILITY */
-    p, div, span, h1, h2, h3, label, .stMarkdown, textarea {{
-        color: {TEXT_DARK} !important;
-    }}
-
-    /* 3. CREATIVE CHAT INPUT (Fixes the black bar) */
-    /* This targets the container at the bottom */
+    /* 2. REMOVE THE BLACK BOTTOM BAR */
+    /* This targets the exact container causing the black strip */
+    footer {{visibility: hidden;}}
+    header {{visibility: hidden;}}
+    
     [data-testid="stChatInputContainer"] {{
-        background-color: transparent !important;
+        background-color: {BG_PAGE} !important;
+        background: {BG_PAGE} !important;
         border: none !important;
-        padding-bottom: 30px !important;
     }}
 
-    /* This styles the actual text box */
+    /* 3. MAKE TYPING VISIBLE (White box with Dark Text) */
     [data-testid="stChatInput"] {{
         background-color: #FFFFFF !important;
         border: 2px solid {ACCENT} !important;
-        border-radius: 30px !important;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
+        border-radius: 15px !important;
     }}
 
-    /* This ensures what you TYPE is dark charcoal */
+    /* This is what makes your typed words dark and visible */
     [data-testid="stChatInput"] textarea {{
         color: {TEXT_DARK} !important;
-        background-color: #FFFFFF !important;
-        font-size: 1rem !important;
+        -webkit-text-fill-color: {TEXT_DARK} !important;
     }}
 
-    /* 4. CHAT BUBBLE CLEANUP */
+    /* 4. CHAT BUBBLE & GENERAL TEXT DARKNESS */
+    p, span, div, .stMarkdown {{
+        color: {TEXT_DARK} !important;
+    }}
+    
     [data-testid="stChatMessage"] {{
         background-color: transparent !important;
     }}
-    
-    /* 5. Header bar */
+
+    /* 5. ORIGINAL HEADER STYLE */
     .nk-header {{
         display: flex;
         align-items: center;
@@ -115,9 +115,6 @@ st.markdown(
         border-bottom: 2px solid {ACCENT};
         margin-bottom: 20px;
     }}
-    
-    /* Hide Streamlit elements */
-    #MainMenu, footer, header {{ visibility: hidden; }}
     </style>
     """,
     unsafe_allow_html=True,
