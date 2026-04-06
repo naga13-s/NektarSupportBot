@@ -56,40 +56,36 @@ def get_logo_base64(path: str = "nektar_logo.png") -> str | None:
 LOGO_URI = get_logo_base64("nektar_logo.png")
 
 # ─────────────────────────────────────────────
-# 3. CUSTOM CSS  —  DARK THEME (MINT GREEN ACCENT)
+# 3. CUSTOM CSS  —  PALE GREEN LIGHT THEME
 # ─────────────────────────────────────────────
-BG_PAGE     = "#0A0F1E"   # deep navy-black page background
-BG_SURFACE  = "#111827"   # slightly lighter surface
-USER_BUBBLE = "#A7D7C5"   # Pale/Lite Green for user messages
-BOT_BUBBLE  = "#1E293B"   # dark slate for assistant bubble
-TEXT_MAIN   = "#E2E8F0"   # off-white — primary text
-TEXT_MUTED  = "#64748B"   # muted grey for subtitles
-ACCENT      = "#A7D7C5"   # Pale Green accent border
-INPUT_BG    = "#1E293B"   # dark input field background
+BG_PAGE     = "#F0F7F4"   # Very pale mint-white background
+BG_SURFACE  = "#E2EEE9"   # Soft sage for headers/sidebars
+USER_BUBBLE = "#A7D7C5"   # Pale Green for user messages
+BOT_BUBBLE  = "#FFFFFF"   # Clean white for assistant bubble
+TEXT_MAIN   = "#1A2F2F"   # Dark charcoal-green for primary text
+TEXT_MUTED  = "#5A716E"   # Muted sage-grey for subtitles
+ACCENT      = "#74A892"   # Stronger sage for borders
+INPUT_BG    = "#FFFFFF"   # White input field
 
 st.markdown(
     f"""
     <style>
-    /* ── Google Font ── */
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap');
 
-    /* ── Global dark background ── */
+    /* ── Global Light Green Background ── */
     html, body, [class*="css"], .stApp, .main, .block-container {{
         font-family: 'DM Sans', sans-serif !important;
         background-color: {BG_PAGE} !important;
         color: {TEXT_MAIN} !important;
     }}
 
-    /* Catch any rogue white panels */
-    section[data-testid="stSidebar"],
-    [data-testid="stAppViewContainer"],
-    [data-testid="stAppViewBlockContainer"],
-    [data-testid="stVerticalBlock"],
+    /* Ensure all Streamlit containers match the pale green */
+    [data-testid="stAppViewContainer"], 
+    [data-testid="stHeader"], 
     [data-testid="stMain"] {{
         background-color: {BG_PAGE} !important;
     }}
 
-    /* ── Hide Streamlit chrome ── */
     #MainMenu, footer, header {{ visibility: hidden; }}
 
     /* ── Header bar ── */
@@ -101,93 +97,44 @@ st.markdown(
         border-bottom: 2px solid {ACCENT};
         margin-bottom: 12px;
     }}
-    .nk-header img {{
-        height: 36px;
-        object-fit: contain;
-        filter: brightness(1.1);
-    }}
     .nk-title {{
         font-size: 1.25rem;
         font-weight: 600;
         color: {TEXT_MAIN} !important;
-        letter-spacing: -0.02em;
     }}
     .nk-subtitle {{
         font-size: 0.78rem;
         color: {TEXT_MUTED} !important;
-        margin-top: 2px;
     }}
 
-    /* ── Chat message container ── */
-    [data-testid="stChatMessage"] {{
-        background: transparent !important;
-    }}
-
-    /* ── User bubble → PALE GREEN, right side ── */
+    /* ── User bubble (Right side) ── */
     [data-testid="stChatMessage"][data-role="user"] {{
         flex-direction: row-reverse;
     }}
     [data-testid="stChatMessage"][data-role="user"] .stMarkdown p {{
         background: {USER_BUBBLE} !important;
-        color: #111827 !important; /* Dark text for better contrast on light green */
+        color: {TEXT_MAIN} !important;
         border-radius: 18px 18px 4px 18px;
-        padding: 10px 16px;
-        display: inline-block;
-        max-width: 85%;
-        font-size: 0.93rem;
-        line-height: 1.55;
-        font-weight: 500;
+        padding: 12px 18px;
+        border: 1px solid {ACCENT};
     }}
 
-    /* ── Assistant bubble → dark slate, left side ── */
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown p,
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown li,
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown h1,
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown h2,
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown h3,
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown span,
-    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown {{
-        color: {TEXT_MAIN} !important;
-    }}
+    /* ── Assistant bubble (White/Left side) ── */
     [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown p {{
         background: {BOT_BUBBLE} !important;
         color: {TEXT_MAIN} !important;
         border-radius: 18px 18px 18px 4px;
-        padding: 10px 16px;
-        display: inline-block;
-        max-width: 88%;
-        font-size: 0.93rem;
-        line-height: 1.55;
-        border: 1px solid #2D3748;
+        padding: 12px 18px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        border: 1px solid #E0E0E0;
     }}
 
-    /* ── Chat input — dark styled ── */
+    /* ── Chat input ── */
     [data-testid="stChatInput"] {{
         background-color: {INPUT_BG} !important;
         border-radius: 24px !important;
-        border: 1.5px solid #2D3748 !important;
+        border: 1px solid {ACCENT} !important;
     }}
-    [data-testid="stChatInput"] textarea {{
-        background-color: {INPUT_BG} !important;
-        color: {TEXT_MAIN} !important;
-        border-radius: 24px !important;
-        border: none !important;
-        padding: 10px 18px !important;
-        font-family: 'DM Sans', sans-serif !important;
-        font-size: 0.93rem !important;
-    }}
-    [data-testid="stChatInput"] textarea:focus {{
-        outline: none !important;
-        box-shadow: 0 0 0 3px rgba(167, 215, 197, 0.2) !important;
-    }}
-    [data-testid="stChatInput"] textarea::placeholder {{
-        color: {TEXT_MUTED} !important;
-    }}
-
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar {{ width: 6px; }}
-    ::-webkit-scrollbar-track {{ background: {BG_PAGE}; }}
-    ::-webkit-scrollbar-thumb {{ background: #2D3748; border-radius: 8px; }}
     </style>
     """,
     unsafe_allow_html=True,
