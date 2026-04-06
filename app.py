@@ -324,3 +324,37 @@ if prompt := st.chat_input("Ask me anything about Nektar…"):
 
         st.markdown(reply)
         st.session_state.messages.append({"role": "assistant", "content": reply})
+
+
+
+# ─────────────────────────────────────────────
+# NEW: CLEAR CHAT BUTTON LOGIC
+# ─────────────────────────────────────────────
+def clear_chat():
+    st.session_state.messages = []
+    # Re-initialize the chat object to clear the AI's short-term memory
+    st.session_state.chat = st.session_state.client.chats.create(
+        model="gemma-4-26b-a4b-it",
+        config={"system_instruction": system_prompt},
+    )
+
+# You can place the button in the Sidebar for a "Neat" look:
+with st.sidebar:
+    if st.button("Clear Conversation", on_click=clear_chat):
+        st.rerun()
+
+
+/* ── Sidebar Button Styling ── */
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"] {
+    background-color: transparent !important;
+    border: 1px solid #00A8E8 !important;
+    color: #00A8E8 !important;
+    border-radius: 20px !important;
+    width: 100%;
+    transition: 0.3s;
+}
+
+[data-testid="stSidebar"] [data-testid="stBaseButton-secondary"]:hover {
+    background-color: #00A8E8 !important;
+    color: #FFFFFF !important;
+}
