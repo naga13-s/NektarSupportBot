@@ -207,7 +207,7 @@ st.markdown(
         {logo_html}
         <div>
             <div class="nk-title">Support Assistant</div>
-            <div class="nk-subtitle">Empowering your Salesforce workflow with AI</div>
+            <div class="nk-subtitle">GTM Telemetry for the Agentic Enterprise</div>
         </div>
     </div>
     """,
