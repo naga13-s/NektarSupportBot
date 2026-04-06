@@ -55,30 +55,38 @@ def get_logo_base64(path: str = "nektar_logo.png") -> str | None:
 
 LOGO_URI = get_logo_base64("nektar_logo.png")
 # ─────────────────────────────────────────────
-# 3. CUSTOM CSS — HIGH VISIBILITY & BOLD HEADER
+# 3. CUSTOM CSS — HIGH CONTRAST & BOLD HEADER
 # ─────────────────────────────────────────────
 BG_PAGE     = "#EAF4ED"   # Full pale green
 TEXT_DARK   = "#1A2F2F"   # Deep charcoal (Essential for visibility)
-ACCENT      = "#74A892"   # Sage green
+ACCENT      = "#74A892"   # Sage green border
 
 st.markdown(
     f"""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap');
 
-    /* 1. Global Background */
+    /* 1. Global Page Background */
     html, body, .stApp, [data-testid="stAppViewContainer"] {{
         background-color: {BG_PAGE} !important;
         font-family: 'DM Sans', sans-serif !important;
     }}
 
-    /* 2. FORCE ALL TEXT TO DARK CHARCOAL */
-    p, div, span, h1, h2, h3, label, .stMarkdown, textarea {{
+    /* 2. FORCE TYPING TO BE DARK & VISIBLE */
+    /* This targets the actual text area where you type */
+    [data-testid="stChatInput"] textarea {{
         color: {TEXT_DARK} !important;
         -webkit-text-fill-color: {TEXT_DARK} !important;
+        caret-color: {TEXT_DARK} !important; /* Makes the blinking cursor dark */
     }}
 
-    /* 3. CHAT INPUT (The "What's on your mind" area) */
+    /* This targets the "What's on your mind?" placeholder */
+    [data-testid="stChatInput"] textarea::placeholder {{
+        color: #5A716E !important;
+        -webkit-text-fill-color: #5A716E !important;
+    }}
+
+    /* 3. REMOVE BLACK BAR & STYLE INPUT BOX */
     [data-testid="stChatInputContainer"] {{
         background-color: {BG_PAGE} !important;
         border: none !important;
@@ -87,21 +95,10 @@ st.markdown(
     [data-testid="stChatInput"] {{
         background-color: #FFFFFF !important;
         border: 2px solid {ACCENT} !important;
-        border-radius: 15px !important;
+        border-radius: 12px !important;
     }}
 
-    /* Fix Placeholder & Typing Visibility */
-    [data-testid="stChatInput"] textarea {{
-        color: {TEXT_DARK} !important;
-        -webkit-text-fill-color: {TEXT_DARK} !important;
-    }}
-    
-    [data-testid="stChatInput"] textarea::placeholder {{
-        color: #5A716E !important; /* Darker placeholder color */
-        -webkit-text-fill-color: #5A716E !important;
-    }}
-
-    /* 4. HEADER STYLING (Bold Title) */
+    /* 4. BOLD HEADER STYLE */
     .nk-header {{
         display: flex;
         align-items: center;
@@ -112,18 +109,16 @@ st.markdown(
     }}
     .nk-title {{
         font-size: 1.5rem;
-        font-weight: 800 !important; /* EXTRA BOLD */
+        font-weight: 800 !important; /* Bold "Support Assistant" */
         color: {TEXT_DARK} !important;
-        margin: 0;
-    }}
-    .nk-subtitle {{
-        font-size: 0.85rem;
-        color: {TEXT_DARK} !important;
-        opacity: 0.8;
         margin: 0;
     }}
 
-    /* Hide Streamlit elements */
+    /* 5. GENERAL TEXT VISIBILITY */
+    p, span, .stMarkdown {{
+        color: {TEXT_DARK} !important;
+    }}
+
     #MainMenu, footer, header {{ visibility: hidden; }}
     </style>
     """,
