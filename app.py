@@ -232,7 +232,7 @@ kb_content = load_kb()
 @st.cache_data
 def load_faq() -> str:
     try:
-        with open("faq.md", "r", encoding="utf-8") as f:
+        with open("FAQs.md", "r", encoding="utf-8") as f:
             return f.read()
     except FileNotFoundError:
         return ""
