@@ -241,9 +241,7 @@ if "messages" not in st.session_state:
     st.session_state.messages = []
 
 if "chat" not in st.session_state:
-
-
-system_prompt = f"""
+    system_prompt = f"""
 # ROLE
 You are the Nektar Support Assistant. Think of yourself as a knowledgeable, friendly colleague helping a teammate with Nektar.
 
