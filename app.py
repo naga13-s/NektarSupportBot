@@ -121,9 +121,17 @@ st.markdown(
     }}
 
     /* Assistant messages → left-aligned light bubble */
+    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown p,
+    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown li,
+    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown h1,
+    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown h2,
+    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown h3,
+    [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown span {{
+        color: {BRAND_DARK} !important;
+    }}
     [data-testid="stChatMessage"][data-role="assistant"] .stMarkdown p {{
         background: {BRAND_LIGHT};
-        color: #1A202C !important;
+        color: {BRAND_DARK} !important;
         border-radius: 18px 18px 18px 4px;
         padding: 10px 16px;
         display: inline-block;
@@ -151,6 +159,11 @@ st.markdown(
         border-color: {ACCENT} !important;
         outline: none !important;
         box-shadow: 0 0 0 3px rgba(0,168,232,0.15) !important;
+    }}
+
+    /* ── Global text colour fallback ── */
+    .stApp, .stApp p, .stApp span, .stApp div {{
+        color: {BRAND_DARK};
     }}
 
     /* ── Thin scrollbar ── */
@@ -227,7 +240,7 @@ Your job is to help users get the most out of Nektar's Salesforce integration.
 """.strip()
 
     st.session_state.chat = st.session_state.client.chats.create(
-        model="gemma-4-26b-a4b-it",   # update model name as needed
+        model="gemma-4-27b-it",   # update model name as needed
         config={"system_instruction": system_prompt},
     )
 
